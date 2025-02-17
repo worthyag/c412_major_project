@@ -59,7 +59,7 @@ def goodbye():
 
 
 def main():
-    install_dependencies("mac")
+    install_dependencies("centos")
 
     while True:
         print(
