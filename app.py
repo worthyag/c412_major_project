@@ -8,9 +8,22 @@ def install_dependencies(os_type: str = "centos"):
         pass
 
     elif os_type == "centos":
-        os.system("yum -y install epel-release")
-        os.system("yum -y update")
-        os.system("yum -y install sysbench stress stress-ng iperf3")
+        os.system("dnf install -y epel-release")
+        os.system("dnf clean all && sudo dnf makecache")
+        os.system("dnf install -y stress stress-ng")
+        os.system("dnf install -y iperf3")
+
+        # CentOS doesn't provide sysbench by default - must enable the PowerTools repository.
+        os.system("dnf config-manager --set-enabled crb")
+        os.system("dnf install -y sysbench")
+
+        # Verify install
+        os.system(
+            "stress --version",
+            "stress-ng --version"
+            "iperf3 --version",
+            "sysbench --version"
+        )
 
     else:
         print("OS system not available!")
