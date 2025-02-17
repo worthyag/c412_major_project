@@ -14,15 +14,22 @@ def install_dependencies(os_type: str = "centos"):
         os.system("dnf install -y iperf3")
 
         # CentOS doesn't provide sysbench by default - must enable the PowerTools repository.
-        os.system("dnf config-manager --set-enabled crb")
-        os.system("dnf install -y sysbench")
+        # os.system("dnf config-manager --set-enabled crb")
+        # os.system("dnf install -y sysbench")
+
+        # Installing from their GitHub
+        os.system(
+            "curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.rpm.sh | bash")
+        os.system("yum -y install sysbench")
 
         # Verify install
         os.system(
-            "stress --version",
-            "stress-ng --version"
-            "iperf3 --version",
-            "sysbench --version"
+            """
+            stress --version;
+            stress-ng --version;
+            iperf3 --version";
+            sysbench --version;
+            """
         )
 
     else:
