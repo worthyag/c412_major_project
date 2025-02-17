@@ -8,16 +8,22 @@ def install_dependencies(os_type: str = "centos"):
         pass
 
     elif os_type == "centos":
+        print("Installing epel-release...")
         os.system("dnf install -y epel-release")
         os.system("dnf clean all && sudo dnf makecache")
+
+        print("Installing stress and stress-ng...")
         os.system("dnf install -y stress stress-ng")
+
+        print("Installing iperf3...")
         os.system("dnf install -y iperf3")
 
         # CentOS doesn't provide sysbench by default - must enable the PowerTools repository.
         # os.system("dnf config-manager --set-enabled crb")
         # os.system("dnf install -y sysbench")
 
-        # Installing from their GitHub
+        # Installing from sysbench's GitHub.
+        print("Installing sysbench...")
         os.system(
             "curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.rpm.sh | bash")
         os.system("yum -y install sysbench")
