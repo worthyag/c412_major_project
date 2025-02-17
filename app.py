@@ -3,13 +3,14 @@ import sys
 
 
 def install_dependencies(os_type: str = "centos"):
-    print("Checking and installing dependencies.")
+    print("Checking and installing dependencies...")
     if os_type == "mac":
         pass
 
     elif os_type == "centos":
-        os.system("dnf install -y epel-release")
-        os.system("dnf install -y stress stress-ng sysbench iperf3")
+        os.system("yum -y install epel-release")
+        os.system("yum -y update")
+        os.system("yum -y install sysbench stress stress-ng iperf3")
 
     else:
         print("OS system not available!")
