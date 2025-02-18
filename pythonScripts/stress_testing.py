@@ -68,8 +68,8 @@ def mysql_stress_test():
     # Run test
     # 50 clients querying and 200 selects for each.
     os.system(
-        """mysqlslap --user=root --concurrency=50 --iterations=200 
-        --delimiter=';' --create-schema=stress_test --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'
+        """mysqlslap --create-schema=stress_test --user=root --concurrency=50 --iterations=200 
+        --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'
         --query='SELECT * FROM a;' --verbose"""
     )
 
