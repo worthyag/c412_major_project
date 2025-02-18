@@ -5,7 +5,7 @@ import sys
 def install_dependencies(os_type: str = "centos"):
     print("Checking and installing dependencies...")
     if os_type == "mac":
-        pass
+        print("Currently still working through!")
 
     elif os_type == "centos":
         print("Installing epel-release...")
@@ -18,15 +18,11 @@ def install_dependencies(os_type: str = "centos"):
         print("Installing iperf3...")
         os.system("dnf install -y iperf3")
 
-        # CentOS doesn't provide sysbench by default - must enable the PowerTools repository.
-        # os.system("dnf config-manager --set-enabled crb")
-        # os.system("dnf install -y sysbench")
-
-        # Installing from sysbench's GitHub.
-        print("Installing sysbench...")
-        os.system(
-            "curl -s https://packagecloud.io/install/repositories/akopytov/sysbench/script.rpm.sh | bash")
-        os.system("yum -y install sysbench")
+        # Installing mysqlslap (it is a built-in MySQL tool).
+        print("Installing mysqlslap...")
+        os.system("dnf install -y mysql mysql-server")
+        # Starting the service on boot and starting it now.
+        os.system("systemctl enable --now mysqld")
 
         # Verify install
         os.system(
@@ -34,7 +30,7 @@ def install_dependencies(os_type: str = "centos"):
             stress --version;
             stress-ng --version;
             iperf3 --version";
-            sysbench --version;
+            mysql --version;
             """
         )
 
@@ -58,6 +54,7 @@ def network_stress_test():
     print("Starting the 'Network Stress' test...")  # change to log.
     # Run test
     os.system("iperf3 -s &")
+    print("Run 'iperf3 -c <server-ip>' from another machine to test.")
 
 
 def cpu_stress_test():
@@ -69,14 +66,9 @@ def cpu_stress_test():
 def mysql_stress_test():
     print("Starting the 'MySQL Stress' test...")  # change to log.
     # Run test
-    # Prepare
     os.system(
-        "sysbench --test=oltp --oltp-table-size=1000000 --mysql-db=test --mysql-user=root --mysql-password=password12- prepare"
-    )
-
-    # Benchmark
-    os.system(
-        "sysbench --test=oltp --oltp-table-size=1000000 --mysql-db=test --mysql-user=root --mysql-password=password12- --max-time=60 --oltp-read-only=on --max-requests=0 --num-threads=8 run"
+        """mysqlslap --user=root --password=password12- --concurrency=10 --iterations=10 
+        --create-schema=test --query='SELECT * FROM my_table;' --verbose"""
     )
 
 
