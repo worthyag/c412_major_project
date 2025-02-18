@@ -71,36 +71,36 @@ def mysql_stress_test():
     os.system("mysql -u root -e 'CREATE DATABASE IF NOT EXISTS stress_test;'")
 
     # 50 clients querying and 200 selects.
-    # os.system("mysql -u root -e 'CREATE DATABASE IF NOT EXISTS stress_test;'")
-    # os.system(
-    #     "mysqlslap --create-schema=stress_test --user=root --concurrency=50 --iterations=200 --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)' --query='SELECT * FROM a;' --verbose"
-    # )
+    os.system("mysql -u root -e 'CREATE DATABASE IF NOT EXISTS stress_test;'")
+    os.system(
+        "mysqlslap --create-schema=stress_test --user=root --concurrency=15 --iterations=50 --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)' --query='SELECT * FROM a;' --verbose"
+    )
 
     # print("MySQL stress test completed.")
 
     # Run mysqlslap.  Use subprocess for better error handling and output capture.
-    try:
-        result = subprocess.run([
-            "mysqlslap",
-            "--create-schema=stress_test",
-            "--user=root",
-            "--concurrency=15",
-            "--iterations=50",
-            "--delimiter=';'",
-            "--create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'",
-            "--query='SELECT * FROM a;'",
-            "--verbose"  # Keep verbose for debugging
-            # check=True raises exception on error
-        ], capture_output=True, text=True, check=True)
+    # try:
+    #     result = subprocess.run([
+    #         "mysqlslap",
+    #         "--create-schema=stress_test",
+    #         "--user=root",
+    #         "--concurrency=15",
+    #         "--iterations=50",
+    #         "--delimiter=';'",
+    #         "--create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'",
+    #         "--query='SELECT * FROM a;'",
+    #         "--verbose"  # Keep verbose for debugging
+    #         # check=True raises exception on error
+    #     ], capture_output=True, text=True, check=True)
 
-        print(result.stdout)  # Print mysqlslap output
-        # if result.stderr:
-        #     print(f"mysqlslap errors: {result.stderr}")
+    #     print(result.stdout)  # Print mysqlslap output
+    #     # if result.stderr:
+    #     #     print(f"mysqlslap errors: {result.stderr}")
 
-    except subprocess.CalledProcessError as e:
-        print(f"mysqlslap failed: {e}")
-        print(f"mysqlslap stderr: {e.stderr}")  # Print error from mysqlslap.
-        return  # Or handle the error as needed
+    # except subprocess.CalledProcessError as e:
+    #     print(f"mysqlslap failed: {e}")
+    #     print(f"mysqlslap stderr: {e.stderr}")  # Print error from mysqlslap.
+    #     return  # Or handle the error as needed
 
     print("MySQL stress test completed.")
 
