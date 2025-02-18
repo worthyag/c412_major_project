@@ -66,11 +66,25 @@ def cpu_stress_test():
 def mysql_stress_test():
     print("Starting the 'MySQL Stress' test...")  # change to log.
     # Run test
-    # 50 clients querying and 200 selects for each.
+    # Capture the original query cache size.
+    original_cache_size = os.popen(
+        "mysql -u root -e \"SHOW VARIABLES LIKE 'query_cache_size';\"").read()
+
+    # Disable query cache.
+    os.system("mysql -u root -e 'SET GLOBAL query_cache_size = 0;'")
+
+    # 50 clients querying and 200 selects.
     os.system("mysql -u root -e 'CREATE DATABASE IF NOT EXISTS stress_test;'")
     os.system(
         "mysqlslap --create-schema=stress_test --user=root --concurrency=50 --iterations=200 --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)' --query='SELECT * FROM a;' --verbose"
     )
+
+    # Restore the original query cache size.
+    cache_value = original_cache_size.strip().split()[-1]
+    os.system(
+        f"mysql -u root -e 'SET GLOBAL query_cache_size = {cache_value};'")
+
+    print("MySQL stress test completed.")
 
 
 def goodbye():
