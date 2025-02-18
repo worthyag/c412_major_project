@@ -69,9 +69,7 @@ def mysql_stress_test():
     # 50 clients querying and 200 selects for each.
     os.system("mysql -u root -e 'CREATE DATABASE IF NOT EXISTS stress_test;'")
     os.system(
-        "mysqlslap --create-schema=stress_test --user=root --concurrency=50 --iterations=200"
-        "--delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'"
-        "--query='SELECT * FROM a;' --verbose"
+        "mysqlslap --create-schema=stress_test --user=root --concurrency=50 --iterations=200 --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)' --query='SELECT * FROM a;' --verbose"
     )
 
 
