@@ -29,7 +29,7 @@ def install_dependencies(os_type: str = "centos"):
             """
             stress --version;
             stress-ng --version;
-            iperf3 --version";
+            iperf3 --version;
             mysql --version;
             """
         )
