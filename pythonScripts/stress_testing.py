@@ -66,14 +66,10 @@ def cpu_stress_test():
 def mysql_stress_test():
     print("Starting the 'MySQL Stress' test...")  # change to log.
     # Run test
-    # os.system(
-    #     """mysqlslap --user=root --password=password12- --concurrency=10 --iterations=10
-    #     --create-schema=test --query='SELECT * FROM my_table;' --verbose"""
-    # )
     # 50 clients querying and 200 selects for each.
     os.system(
-        """mysqlslap --concurrency=50 --iterations=200 
-        --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'
+        """mysqlslap --user=root --concurrency=50 --iterations=200 
+        --delimiter=';' --create-schema=stress_test --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)'
         --query='SELECT * FROM a;' --verbose"""
     )
 
