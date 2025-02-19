@@ -2,15 +2,28 @@
 - hosts: stress
   become: yes
   tasks:
+    # Cleaning and refreshing the cache.
+    - name: Clean DNF cache
+      command: dnf clean all
+      changed_when: false
+
+    # - name: Refresh DNF cache
+    #   command: dnf makecache
+    #   changed_when: false
+
     # Installing dependencies.
     - name: Install dependencies
-      shell: |
-        dnf install -y epel-release
-        dnf clean all && sudo dnf makecache
-        dnf install -y stress stress-ng
-        dnf install -y iperf3
-        dnf install -y mysql mysql-server
-        dnf install git
+      dnf:
+        name:
+          - epel-release
+          - stress
+          - stress-ng
+          - iperf3
+          - mysql
+          - mysql-server
+          - git
+        state: present
+        update_cache: yes
 
     # Install Java 17.
     - name: Installing Java 17 # Required for Jenkins
