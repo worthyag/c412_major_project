@@ -2,9 +2,7 @@ import os
 import sys
 import subprocess
 
-# Will remove the install dependies (installing the libraries directly on the VM)
-
-
+# Will remove the install dependencies (installing the libraries directly on the VM)
 def install_dependencies(os_type: str = "centos"):
     print("Checking and installing dependencies...")
     if os_type == "mac":
