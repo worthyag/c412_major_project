@@ -4,16 +4,13 @@
   tasks:
     # Installing dependencies.
     - name: Install dependencies
-      dnf:
-        name:
-          - epel-release
-          - stress
-          - stress-ng
-          - iperf3
-          - mysql
-          - mysql-server
-          - git # For GitHub integration
-        state: present
+      shell: |
+        dnf install -y epel-release
+        dnf clean all && sudo dnf makecache
+        dnf install -y stress stress-ng
+        dnf install -y iperf3
+        dnf install -y mysql mysql-server
+        dnf install git
 
     # Install Java 17.
     - name: Installing Java 17 # Required for Jenkins
