@@ -14,16 +14,65 @@
       get_url:
         url: 'https://github.com/prometheus/prometheus/releases/download/v3.2.0/prometheus-3.2.0.linux-arm64.tar.gz'
         dest: '/tmp/prometheus.tar.gz'
+
     - name: Extract and Move Prometheus
       shell: |
         tar -xvzf /tmp/prometheus.tar.gz -C /usr/local/bin --strip-components=1
-    - name: Start Prometheus if not running
-      shell: 'pgrep prometheus || nohup /usr/local/bin/prometheus --config.file=/usr/local/bin/prometheus.yml &'
+
+    - name: Create Prometheus Systemd Service
+      copy:
+        dest: /etc/systemd/system/prometheus.service
+        content: |
+          [Unit]
+          Description=Prometheus
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/prometheus \
+            --config.file=/usr/local/bin/prometheus.yml \
+            --web.listen-address="0.0.0.0:9095"
+          Restart=always
+          User=root
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload and Start Prometheus Service
+      systemd:
+        name: prometheus
+        state: started
+        enabled: yes
+        daemon_reload: yes
 
     # Installing Grafana
-    - name: Install Grafana
+    - name: Download and Install Grafana
       shell: |
-        wget https://dl.grafana.com/enterprise/release/grafana-enterprise-11.5.2.linux-arm64.tar.gz
-        tar -zxvf grafana-enterprise-11.5.2.linux-arm64.tar.gz -C /usr/local/bin
-    - name: Start Grafana if not running
-      shell: 'pgrep grafana || nohup /usr/local/bin/grafana/bin/grafana-server &'
+        wget https://dl.grafana.com/enterprise/release/grafana-enterprise-11.5.2.linux-arm64.tar.gz -O /tmp/grafana.tar.gz
+        mkdir -p /usr/local/grafana
+        tar -zxvf /tmp/grafana.tar.gz -C /usr/local/grafana --strip-components=1
+        ln -sf /usr/local/grafana/bin/grafana-server /usr/local/bin/grafana-server
+
+    - name: Create Grafana Systemd Service
+      copy:
+        dest: /etc/systemd/system/grafana.service
+        content: |
+          [Unit]
+          Description=Grafana
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/grafana/bin/grafana-server --homepath /usr/local/grafana
+          Restart=always
+          User=root
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload and Start Grafana Service
+      systemd:
+        name: grafana
+        state: started
+        enabled: yes
+        daemon_reload: yes
