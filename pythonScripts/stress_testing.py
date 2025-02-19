@@ -2,6 +2,8 @@ import os
 import sys
 import subprocess
 
+# Will remove the install dependies (installing the libraries directly on the VM)
+
 
 def install_dependencies(os_type: str = "centos"):
     print("Checking and installing dependencies...")
@@ -76,9 +78,9 @@ def mysql_stress_test():
         "mysqlslap --create-schema=stress_test --user=root --concurrency=15 --iterations=50 --delimiter=';' --create='CREATE TABLE a (b int); INSERT INTO a VALUES (23)' --query='SELECT * FROM a;' --verbose"
     )
 
-    # print("MySQL stress test completed.")
+    print("MySQL stress test completed.")
 
-    # Run mysqlslap.  Use subprocess for better error handling and output capture.
+    # Alternative: Run mysqlslap.  Use subprocess for better error handling and output capture.
     # try:
     #     result = subprocess.run([
     #         "mysqlslap",
@@ -102,7 +104,7 @@ def mysql_stress_test():
     #     print(f"mysqlslap stderr: {e.stderr}")  # Print error from mysqlslap.
     #     return  # Or handle the error as needed
 
-    print("MySQL stress test completed.")
+    # print("MySQL stress test completed.")
 
 
 def goodbye():
