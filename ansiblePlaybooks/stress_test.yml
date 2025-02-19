@@ -1,0 +1,111 @@
+---
+hosts: stress
+  become: yes
+  tasks:
+    # Installing dependencies.
+    - name: Install dependencies
+      dnf:
+        name:
+          - epel-release
+          - stress
+          - stress-ng
+          - iperf3
+          - mysql
+          - mysql-server
+          - git              # For GitHub integration
+        state: present
+    
+    # Install Java 17.
+    - name: Installing Java 17  # Required for Jenkins
+      shell: |
+        scp jdk-17.0.14_linux-aarch64_bin.rpm root@vm0:/root
+        rpm -ivh /root/jdk-17.0.14_linux-aarch64_bin.rpm
+    
+    # Stopping the firewall.
+    - name: Stop and Disable the Firewall
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+
+    # Start MySQL
+    - name: Enable and Start MySQL
+      systemd:
+        name: mysqld
+        enabled: yes
+        state: started
+
+    # Install Jenkins
+    - name: Add Jenkins Repository
+      get_url:
+        url: https://pkg.jenkins.io/redhat/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: Import Jenkins GPG Key
+      rpm_key:
+        state: present
+        key: https://pkg.jenkins.io/redhat/jenkins.io-2023.key
+
+    - name: Install Jenkins
+      dnf:
+        name: jenkins
+        state: present
+
+    - name: Enable and Start Jenkins
+      systemd:
+        name: jenkins
+        enabled: yes
+        state: started
+
+    # Install ngrok
+    - name: Download ngrok
+      get_url:
+        url: https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-linux-arm64.tgz
+        dest: /tmp/ngrok.tgz
+      when: "'/usr/local/bin/ngrok' not in ansible_facts.packages"
+
+    - name: Extract and Move ngrok
+      shell: |
+        tar -xvzf /tmp/ngrok.tgz -C /usr/local/bin
+        chmod +x /usr/local/bin/ngrok
+      args:
+        creates: /usr/local/bin/ngrok
+
+    - name: Start ngrok (HTTP Tunnel for Jenkins) if not running
+      shell: "pgrep -f 'ngrok http 8080' || nohup /usr/local/bin/ngrok http 8080 &"
+      args:
+        executable: /bin/bash
+
+    # Node Exporter
+    - name: Download Node Exporter
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.9.0/node_exporter-1.9.0.linux-arm64.tar.gz"
+        dest: "/tmp/node_exporter.tar.gz"
+      when: "'/usr/local/bin/node_exporter' not in ansible_facts.packages"
+
+    - name: Extract Node Exporter
+      shell: "tar -xvzf /tmp/node_exporter.tar.gz -C /usr/local/bin --strip-components=1"
+      args:
+        creates: /usr/local/bin/node_exporter
+
+    - name: Start Node Exporter if not running
+      shell: "pgrep node_exporter || nohup /usr/local/bin/node_exporter &"
+      args:
+        executable: /bin/bash
+
+    # MySQLD Exporter
+    - name: Download MySQLD Exporter
+      get_url:
+        url: "https://github.com/prometheus/mysqld_exporter/releases/download/v0.16.0/mysqld_exporter-0.16.0.linux-arm64.tar.gz"
+        dest: "/tmp/mysqld_exporter.tar.gz"
+      when: "'/usr/local/bin/mysqld_exporter' not in ansible_facts.packages"
+
+    - name: Extract MySQLD Exporter
+      shell: "tar -xvzf /tmp/mysqld_exporter.tar.gz -C /usr/local/bin --strip-components=1"
+      args:
+        creates: /usr/local/bin/mysqld_exporter
+
+    - name: Start MySQLD Exporter if not running
+      shell: "pgrep mysqld_exporter || nohup /usr/local/bin/mysqld_exporter &"
+      args:
+        executable: /bin/bash

@@ -1,0 +1,29 @@
+---
+- hosts: prometheus
+  become: yes
+  tasks:
+    # Stopping the firewall.
+    - name: Stop and Disable the Firewall
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+
+    # Installing Prometheus
+    - name: Download and Install Prometheus
+      get_url:
+        url: 'https://github.com/prometheus/prometheus/releases/download/v3.2.0/prometheus-3.2.0.linux-arm64.tar.gz'
+        dest: '/tmp/prometheus.tar.gz'
+    - name: Extract and Move Prometheus
+      shell: |
+        tar -xvzf /tmp/prometheus.tar.gz -C /usr/local/bin --strip-components=1
+    - name: Start Prometheus if not running
+      shell: 'pgrep prometheus || nohup /usr/local/bin/prometheus --config.file=/usr/local/bin/prometheus.yml &'
+
+    # Installing Grafana
+    - name: Install Grafana
+      shell: |
+        wget https://dl.grafana.com/enterprise/release/grafana-enterprise-11.5.2.linux-arm64.tar.gz
+        tar -zxvf grafana-enterprise-11.5.2.linux-arm64.tar.gz -C /usr/local/bin
+    - name: Start Grafana if not running
+      shell: 'pgrep grafana || nohup /usr/local/bin/grafana/bin/grafana-server &'

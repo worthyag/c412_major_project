@@ -1,0 +1,28 @@
+---
+- hosts: mysql
+  become: yes
+  tasks:
+    # Stopping the firewall.
+    - name: Stop and Disable the Firewall
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+
+    # Installing MySQL
+    - name: Install MySQL
+      dnf:
+        name:
+          - epel-release
+          - mysql
+          - mysql-server
+        state: present
+    - name: Start MySQL
+      systemd:
+        name: mysqld
+        enabled: yes
+        state: started
+    - name: Create Stress Test Schema
+      community.mysql.mysql_db:
+        name: stress_test
+        state: present
