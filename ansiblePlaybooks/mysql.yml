@@ -22,7 +22,3 @@
         name: mysqld
         enabled: yes
         state: started
-    - name: Create Stress Test Schema
-      community.mysql.mysql_db:
-        name: stress_test
-        state: present
